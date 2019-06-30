@@ -1,53 +1,80 @@
-import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-
-Context context;
-SensorManager manager;
-Sensor sensor;
-AccelerometerListener listener;
-float ax, ay, az;
+Circle[] circles = new Circle[1000];
+int count = 0;
+int maxDiameter = 100;
+int minDiameter = 10;
+int lastAdded = 0;
+int lastAddedTimeout = 100;
 
 void setup() {
-  fullScreen();
-
-  context = getContext();
-  
-  manager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
-  sensor = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-  listener = new AccelerometerListener();
-  manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_GAME);
-  
-  textFont(createFont("SansSerif", 30 * displayDensity));
+  size(500, 500);
+  smooth();
+  background(255);
+  noFill();  
 }
+
 
 void draw() {
-  background(0);
-  text("X: " + ax + "\nY: " + ay + "\nZ: " + az, 0, 0, width, height);
+  //background(255);
+  if (count < circles.length) {
+    circles[count] = new Circle(5, maxDiameter);
+    for (int i=0; i<count; i++) {
+      if (circles[count].intersects(circles[i])) {
+        circles[count] = null;
+        break;
+      }
+    }
+    
+    if (circles[count] != null) {
+      circles[count].draw();
+      
+      if (count > 1) {
+        float nearest = 100000;
+        float current = 0;
+        int nearestIndex = -1;
+        for (int i=0; i<count; i++) {
+          current = dist(circles[i].x, circles[i].y, circles[count].x, circles[count].y);
+          if (current < nearest) {
+            nearest = current;
+            nearestIndex = i;
+          }
+        }
+      
+        stroke(255, 255, 0);
+        line(circles[nearestIndex].x, circles[nearestIndex].y, circles[count].x, circles[count].y);
+        stroke(0);
+      }
+      
+      count++;
+      lastAdded = 0;
+    } else {
+      if (lastAdded > lastAddedTimeout && maxDiameter > minDiameter) {
+         maxDiameter--;
+         lastAdded = 0;
+       }
+      lastAdded++;
+     }
+  }  
 }
 
-class AccelerometerListener implements SensorEventListener {
-  public void onSensorChanged(SensorEvent event) {
-    ax = event.values[0];
-    ay = event.values[1];
-    az = event.values[2];    
-  }
-  public void onAccuracyChanged(Sensor sensor, int accuracy) {
-  }
-}
 
-public void onResume() {
-  super.onResume();
-  if (manager != null) {
-    manager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_GAME);
+class Circle
+{
+  float x, y, radius;
+  
+  Circle(float minDiameter, float maxDiameter) {
+    radius = random(minDiameter, maxDiameter) / 2.0;
+    x = random(radius, width - radius);
+    y = random(radius, height - radius);
   }
-}
-
-public void onPause() {
-  super.onPause();
-  if (manager != null) {
-    manager.unregisterListener(listener);
+  
+  boolean intersects(Circle c) {
+    return dist(c.x, c.y, x, y) < c.radius + radius;
   }
+  
+  void draw() {
+    color c = lerpColor(color(255), color(0), radius/50.0);
+    fill(c);
+    ellipse(x, y, radius*2, radius*2);
+  }
+  
 }

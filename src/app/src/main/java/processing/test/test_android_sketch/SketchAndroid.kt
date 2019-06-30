@@ -2,59 +2,90 @@ package processing.test.test_android_sketch
 
 import processing.core.*
 
-import android.content.Context
-import android.hardware.Sensor
-import android.hardware.SensorManager
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-
 class SketchAndroid : PApplet() {
-    private var manager: SensorManager? = null
-    private lateinit var sensor: Sensor
-    private lateinit var listener: AccelerometerListener
-    internal var ax: Float = 0.toFloat()
-    internal var ay: Float = 0.toFloat()
-    internal var az: Float = 0.toFloat()
+
+    private var circles = arrayOfNulls<Circle>(1000)
+    private var count = 0
+    private var maxDiameter = 100
+    private var minDiameter = 10
+    private var lastAdded = 0
+    private var lastAddedTimeout = 100
 
     override fun setup() {
-        manager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        sensor = manager!!.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-        listener = AccelerometerListener()
-        manager!!.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_GAME)
-
-        textFont(createFont("SansSerif", 30 * displayDensity))
+        println("Setting UP Baby")
+        background(255)
+        noFill()
     }
 
     override fun draw() {
-        background(0)
-        text("X: $ax\nY: $ay\nZ: $az", 0f, 0f, width.toFloat(), height.toFloat())
+        //background(255);
+        if (count < circles.size) {
+            circles[count] = Circle(5f, maxDiameter.toFloat())
+            for (i in 0 until count) {
+                if (circles[i]?.let { circles[count]!!.intersects(it) }!!) {
+                    circles[count] = null
+                    break
+                }
+            }
+
+            if (circles[count] != null) {
+                circles[count]?.draw()
+
+                if (count > 1) {
+                    var nearest = 100000f
+                    var current = 0f
+                    var nearestIndex = -1
+                    for (i in 0 until count) {
+                        current = dist(circles[i]!!.x, circles[i]!!.y, circles[count]!!.x, circles[count]!!.y)
+                        if (current < nearest) {
+                            nearest = current
+                            nearestIndex = i
+                        }
+                    }
+
+                    stroke(255f, 255f, 0f)
+                    line(circles[nearestIndex]!!.x, circles[nearestIndex]!!.y, circles[count]!!.x, circles[count]!!.y)
+                    stroke(0)
+                }
+
+                count++
+                lastAdded = 0
+            } else {
+                if (lastAdded > lastAddedTimeout && maxDiameter > minDiameter) {
+                    maxDiameter--
+                    lastAdded = 0
+                }
+                lastAdded++
+            }
+        }
     }
 
-    internal inner class AccelerometerListener : SensorEventListener {
-        override fun onSensorChanged(event: SensorEvent) {
-            ax = event.values[0]
-            ay = event.values[1]
-            az = event.values[2]
+
+    internal inner class Circle(minDiameter: Float, maxDiameter: Float) {
+        var x: Float = 0.toFloat()
+        var y: Float = 0.toFloat()
+        private var radius: Float = 0.toFloat()
+
+        init {
+            radius = random(minDiameter, maxDiameter) / 2.0f
+            x = random(radius, width - radius)
+            y = random(radius, height - radius)
         }
 
-        override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (manager != null) {
-            manager!!.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_GAME)
+        fun intersects(c: Circle): Boolean {
+            return dist(c.x, c.y, x, y) < c.radius + radius
         }
-    }
 
-    override fun onPause() {
-        super.onPause()
-        if (manager != null) {
-            manager!!.unregisterListener(listener)
+        fun draw() {
+            val c = lerpColor(color(255), color(0), radius / 50.0f)
+            fill(c)
+            ellipse(x, y, radius * 2, radius * 2)
         }
+
     }
 
     override fun settings() {
-        fullScreen()
+        size(500, 500)
+        smooth()
     }
 }
