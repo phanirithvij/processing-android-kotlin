@@ -1,4 +1,4 @@
-package processing.test.test_android_sketch
+package processing.test.test_android_sketch.ui
 
 import processing.core.*
 

@@ -7,19 +7,5 @@
     <FrameLayout
         android:id="@+id/settings"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="328dp"
-            android:layout_height="284dp"
-            android:text="@string/button" />
-
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/messages_header"
-            tools:srcCompat="@tools:sample/avatars[13]" />
-    </FrameLayout>
+        android:layout_height="match_parent" />
 </LinearLayout>

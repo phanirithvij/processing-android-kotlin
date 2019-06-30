@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="processing.test.test_android_sketch">
-
+    
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -16,23 +16,24 @@
         android:label="test_android_sketch"
         android:theme="@style/Theme.AppCompat.DayNight.DarkActionBar"
         tools:ignore="GoogleAppIndexingWarning">
+
         <activity
-            android:name=".SettingsActivity"
+            android:name=".ui.SettingsActivity"
             android:theme="@style/Theme.AppCompat.DayNight"
             android:exported="true"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".ui.MainActivity"
             android:label="@string/title_activity_settings">
         </activity>
-        <activity android:name=".MainActivity">
+
+        <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <service
-            android:name=".MainService"
+            android:name=".services.MainService"
             android:label="test_android_sketch"
             android:permission="android.permission.BIND_WALLPAPER">
             <intent-filter>
