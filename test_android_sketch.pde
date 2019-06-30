@@ -13,7 +13,7 @@ float ax, ay, az;
 void setup() {
   fullScreen();
 
-  context = getActivity();
+  context = getContext();
   
   manager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
   sensor = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
